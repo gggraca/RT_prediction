@@ -1,5 +1,5 @@
 from rdkit.Chem import Descriptors
-from rdkit import Chems
+from rdkit import Chem
 
 from pandas import DataFrame
 import pandas as pd
