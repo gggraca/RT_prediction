@@ -21,6 +21,31 @@ def pearson_selection(input_data,threhold):
     return input_data
 
 
+def pearson_selection2(input_data1,threhold1,start_feature):
+    feature_list = list(input_data1.columns)
+    selection_list = list()
+    start = start_feature
+    selection_list.append(start)
+    feature_list.remove(start)
+    store_list = list()
+    while len(feature_list) > 0:
+        for i in feature_list:
+            if np.abs(stats.pearsonr(input_data1[start], input_data1[i])[0]) >= threhold1:
+                feature_list.remove(i)
+            else:
+                store_list.append(np.abs(stats.pearsonr(input_data1[start], input_data1[i])[0]))
+
+        sort_list = sorted(store_list)
+        for i1 in feature_list:
+            if np.abs(stats.pearsonr(input_data1[start], input_data1[i1])[0]) == sort_list[0]:
+                selection_list.append(i1)
+                feature_list.remove(i1)
+                start = i1
+                store_list = list()
+
+    return input_data1[selection_list]
+
+
 def std_selection(input_data1,threhold1):
     variable1 = list(input_data1.columns)
     # print(variable)
