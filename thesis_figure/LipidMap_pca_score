@@ -1,0 +1,68 @@
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.decomposition import PCA
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+import matplotlib.patches as mpatches
+matplotlib.style.use('ggplot')
+
+#legend for lipid class
+colors = ['red', 'peru', 'yellow', 'lightgreen','skyblue','cyan','violet','navy','pink']
+labels = [ "Sterol Lipids [ST]","Sphingolipids [SP]","Glycerolipids [GL]","Glycerophospholipids [GP]"
+    ,"Fatty Acyls [FA]","Amino acid derivative","Xenobiotic","Porphyrin metabolite","Vitamin"]
+patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(labels[i]) ) for i in range(len(colors)) ]
+
+
+b1, =plt.plot([], marker="s", markersize=15, linestyle="", color="black", label="training set")
+b2, =plt.plot([], marker=".", markersize=15, linestyle="", color="black", label="LipidMaps")
+b3, =plt.plot([], marker="*", markersize=20, linestyle="", color="black", label="validation set")
+
+color_list = {
+    "Sterol Lipids [ST]":"red",
+    "Sphingolipids [SP]":"peru",
+    "Glycerolipids [GL]":"yellow",
+    "Glycerophospholipids [GP]":"lightgreen",
+    "Fatty Acyls [FA]":"skyblue",
+    "Amino acid derivative":"cyan",
+    "Xenobiotic":"violet",
+    "Porphyrin metabolite":"navy",
+    "Vitamin":"pink"
+
+}
+data = pd.read_csv("remove_zeros_result_3source.csv")
+name = data['ANALYTE']
+class1 = list(data['category'])
+X =data.drop("ANALYTE", axis=1)
+X = X.drop("category", axis=1)
+
+scaler = StandardScaler()
+scaler.fit(X)
+X = scaler.transform(X)
+pca = PCA(n_components=4)
+x_new = pca.fit_transform(X)
+
+print(pca.explained_variance_ratio_)
+
+
+xs = x_new[:,0]
+ys = x_new[:,1]
+scalex = 1.0/(xs.max() - xs.min())
+scaley = 1.0/(ys.max() - ys.min())
+for i in range(3267):
+    plt.scatter(xs[i] * scalex,ys[i] * scaley,s=15, c = color_list[class1[i]],marker='.')
+for j in range(141):
+    plt.scatter(xs[j+3267] * scalex, ys[j+3267] * scaley, s=15, c=color_list[class1[j+3267]], marker='s')
+for k in range(48):
+    plt.scatter(xs[k+3408] * scalex, ys[k+3408] * scaley, s=40, c=color_list[class1[k+3408]], marker='*')
+plt.xlim(-0.3,1.3)
+plt.ylim(-0.45,0.7)
+plt.xlabel("PC1(27.8%)")
+plt.ylabel("PC2(15.4%)")
+
+l1 = plt.legend(handles=patches,loc="center right")
+plt.legend(handles=[b1, b3, b2],loc="upper right")
+plt.gca().add_artist(l1)
+
+plt.show()
